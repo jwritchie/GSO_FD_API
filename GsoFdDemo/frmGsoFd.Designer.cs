@@ -32,6 +32,7 @@
             this.dgvGsoFd = new System.Windows.Forms.DataGridView();
             this.bsDgvGsoFd = new System.Windows.Forms.BindingSource(this.components);
             this.btnLoadGsoFdData = new System.Windows.Forms.Button();
+            this.btnPushDataToExcel = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvGsoFd)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.bsDgvGsoFd)).BeginInit();
             this.SuspendLayout();
@@ -59,11 +60,22 @@
             this.btnLoadGsoFdData.UseVisualStyleBackColor = true;
             this.btnLoadGsoFdData.Click += new System.EventHandler(this.btnLoadGsoFdData_Click);
             // 
+            // btnPushDataToExcel
+            // 
+            this.btnPushDataToExcel.Location = new System.Drawing.Point(212, 12);
+            this.btnPushDataToExcel.Name = "btnPushDataToExcel";
+            this.btnPushDataToExcel.Size = new System.Drawing.Size(194, 52);
+            this.btnPushDataToExcel.TabIndex = 2;
+            this.btnPushDataToExcel.Text = "Push data to Excel";
+            this.btnPushDataToExcel.UseVisualStyleBackColor = true;
+            this.btnPushDataToExcel.Click += new System.EventHandler(this.btnPushDataToExcel_Click);
+            // 
             // frmGsoFd
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 450);
+            this.Controls.Add(this.btnPushDataToExcel);
             this.Controls.Add(this.btnLoadGsoFdData);
             this.Controls.Add(this.dgvGsoFd);
             this.Name = "frmGsoFd";
@@ -82,5 +94,6 @@
         private System.Windows.Forms.DataGridView dgvGsoFd;
         private System.Windows.Forms.BindingSource bsDgvGsoFd;
         private System.Windows.Forms.Button btnLoadGsoFdData;
+        private System.Windows.Forms.Button btnPushDataToExcel;
     }
 }

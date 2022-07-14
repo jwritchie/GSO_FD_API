@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using static GsoFdLibrary.GsoFdModels;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace GsoFdDemo
 {
@@ -120,6 +121,50 @@ namespace GsoFdDemo
         private void frmGsoFd_Load(object sender, EventArgs e)
         {
             dgvGsoFd.DataSource = bsDgvGsoFd;
+        }
+
+
+        /// <summary>
+        /// Insert data from DataTable into Excel Activesheet.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btnPushDataToExcel_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Excel.Worksheet ws = (Excel.Worksheet)Globals.ThisWorkbook.ActiveSheet;
+
+                // Insert column headers.
+                foreach (DataColumn dataColumn in dt.Columns)
+                {
+                    ws.Cells[2, dataColumn.Ordinal + 1] = dataColumn.ColumnName;
+                }
+
+                // Insert data from DataTable.
+                int currentRow = 3;
+                foreach (DataRow dataRow in dt.Rows)
+                {
+                    // Loop through all columns in DataTable.
+                    for (int currentColumn = 1; currentColumn <= dt.Columns.Count; currentColumn++)
+                    {
+                        ws.Cells[currentRow, currentColumn] = dataRow[currentColumn - 1].ToString();
+                    }
+                    currentRow++;
+                }
+
+                // Insert ListObject.
+                Excel.Range range = (Excel.Range)ws.Range["A2"];
+                Excel.ListObject listObject = (Excel.ListObject)ws.ListObjects.AddEx(XlListObjectHasHeaders: Excel.XlYesNoGuess.xlYes, Destination: range);
+
+                // Insert total/displayed records count.
+                ws.Range["A1"].Formula = "= COUNTA(Table1[IncidentNumber]) & \" records / \" & SUBTOTAL(103, Table1[IncidentNumber]) & \" shown\"";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+
         }
     }
 }
