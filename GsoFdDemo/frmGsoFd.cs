@@ -31,12 +31,18 @@ namespace GsoFdDemo
         {
             InitializeComponent();
 
+            LblLimitRecords.Enabled = false;
+            TxtLimitRecords.Enabled = false;
+
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;     // | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 
             // Initialize HttpClient.
             ApiHelper.InitializeClient();
 
             dt = new DataTable();
+
+            Dictionary<string, string> queryData = new Dictionary<string, string>();
+            DisplayData(queryData, 0);
         }
 
 
@@ -45,10 +51,31 @@ namespace GsoFdDemo
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private async void btnLoadGsoFdData_Click(object sender, EventArgs e)
+        private void btnLoadGsoFdData_Click(object sender, EventArgs e)
+        {
+            Dictionary<string, string> queryData = new Dictionary<string, string>()
+            {
+                ["Year"] = "'2022'",
+                ["Month"] = "'01'",
+                ["Day"] = "01",
+                ["station"] = "'07'"
+            };
+
+            //Dictionary<string, string> queryData = new Dictionary<string, string>();
+            int totalRequested = (int)NbrTotalRequested.Value;
+            DisplayData(queryData,totalRequested);
+        }
+
+
+        /// <summary>
+        /// Display retrieved data in DataGridView.
+        /// </summary>
+        /// <param name="queryData">Query parameters</param>
+        /// <param name="totalRequested">Maximum records to sample</param>
+        private async void DisplayData(Dictionary<string,string> queryData, int totalRequested)
         {
             // Retrieve data from API.
-            GsoFdRootobject gsoFdRootobject = await GetGsoFdDataAsync();
+            GsoFdRootobject gsoFdRootobject = await GetGsoFdDataAsync(queryData, totalRequested);
 
             // Load datatable.
             dt = ToDataTable(gsoFdRootobject.features);
@@ -62,9 +89,9 @@ namespace GsoFdDemo
         /// Retrieve data from API.
         /// </summary>
         /// <returns></returns>
-        private async Task<GsoFdRootobject> GetGsoFdDataAsync()
+        private async Task<GsoFdRootobject> GetGsoFdDataAsync(Dictionary<string,string> queryData, int totalRequested)
         {
-            String GsoFdRootobjectData = await Task.Run(() => GsoFdProcessor.LoadGsoFdData());
+            String GsoFdRootobjectData = await Task.Run(() => GsoFdProcessor.LoadGsoFdData(queryData, totalRequested));
 
             GsoFdRootobject gsoFdRootobject = JsonConvert.DeserializeObject<GsoFdRootobject>(GsoFdRootobjectData, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
@@ -89,24 +116,27 @@ namespace GsoFdDemo
                 table.Columns.Add(col);
             }
 
-            // Insert property values into the datatable's rows.
-            foreach (Feature feature in features)
+            if (features != null)
             {
-                var item = feature.attributes;
-
-                var values = new object[Properties.Length];
-                for (int i = 0; i < Properties.Length; i++)
+                // Insert property values into the datatable's rows.
+                foreach (Feature feature in features)
                 {
-                    if (Properties[i].PropertyType == typeof(string))
+                    var item = feature.attributes;
+
+                    var values = new object[Properties.Length];
+                    for (int i = 0; i < Properties.Length; i++)
                     {
-                        values[i] = Properties[i].GetValue(item, null).ToString().Trim();
+                        if (Properties[i].PropertyType == typeof(string))
+                        {
+                            values[i] = Properties[i].GetValue(item, null).ToString().Trim();
+                        }
+                        else
+                        {
+                            values[i] = Properties[i].GetValue(item, null);
+                        }
                     }
-                    else
-                    {
-                        values[i] = Properties[i].GetValue(item, null);
-                    }
+                    table.Rows.Add(values);
                 }
-                table.Rows.Add(values);
             }
 
             return table;
@@ -165,6 +195,22 @@ namespace GsoFdDemo
                 MessageBox.Show(ex.Message);
             }
 
+        }
+
+        private void ChkLimitRecords_CheckedChanged(object sender, EventArgs e)
+        {
+            if (ChkLimitRecords.Checked)
+            {
+                LblLimitRecords.Enabled = true;
+                TxtLimitRecords.Enabled = true;
+            }
+            else
+            {
+                LblLimitRecords.Enabled = false;
+                TxtLimitRecords.Enabled = false;
+            }
+
+            TxtLimitRecords.Clear();
         }
     }
 }
