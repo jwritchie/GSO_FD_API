@@ -34,6 +34,16 @@ namespace GsoFdDemo
             LblLimitRecords.Enabled = false;
             TxtLimitRecords.Enabled = false;
 
+            Cbo13Station.Items.AddRange(new object[] {
+                "01","02","03","04","05","06","07","08","09","10",
+                "11","12","13","14","15","16","17","18","19","20",
+                "21","22","23","24","25","26","27","28","29","30",
+                "31","32","33","34","35","36","37","38","39","40",
+                "41","42","43","44","45","46","47","48","49","50",
+                "51","52","53","54","55","56","57","58","59","60",
+                "61","PTI"
+            });
+
             ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls13 | SecurityProtocolType.Tls12;     // | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls;
 
             // Initialize HttpClient.
@@ -76,13 +86,30 @@ namespace GsoFdDemo
                 {
                     if (totalRequested > 0)
                     {
-                        Dictionary<string, string> queryData = new Dictionary<string, string>()
+                        Dictionary<string, string> queryData = new Dictionary<string, string>();
+                        //{
+                        //    ["Year"] = "'2022'",
+                        //    ["Month"] = "'01'",
+                        //    ["Day"] = "01",
+                        //    ["station"] = "'07'"
+                        //};
+
+                        if (Chk06Year.Checked)
                         {
-                            ["Year"] = "'2022'",
-                            ["Month"] = "'01'",
-                            ["Day"] = "01",
-                            ["station"] = "'07'"
-                        };
+                            queryData.Add("Year", $"'{Cbo06Year.Text}'");
+                        }
+                        if (Chk02Month.Checked)
+                        {
+                            queryData.Add("Month", $"'{Cbo02Month.Text}'");
+                        }
+                        if (Chk03Day.Checked)
+                        {
+                            queryData.Add("Day", $"{NbrDay.Value}");
+                        }
+                        if (Chk13station.Checked)
+                        {
+                            queryData.Add("station", $"'{Cbo13Station.Text}'");
+                        }
 
                         DisplayData(queryData, limit, totalRequested);
                     }
@@ -98,13 +125,30 @@ namespace GsoFdDemo
             }
             else
             {
-                Dictionary<string, string> queryData = new Dictionary<string, string>()
+                Dictionary<string, string> queryData = new Dictionary<string, string>();
+                //{
+                //    ["Year"] = "'2022'",
+                //    ["Month"] = "'01'",
+                //    ["Day"] = "01",
+                //    ["station"] = "'07'"
+                //};
+
+                if (Chk06Year.Checked)
                 {
-                    ["Year"] = "'2022'",
-                    ["Month"] = "'01'",
-                    ["Day"] = "01",
-                    ["station"] = "'07'"
-                };
+                    queryData.Add("Year", $"'{Cbo06Year.Text}'");
+                }
+                if (Chk02Month.Checked)
+                {
+                    queryData.Add("Month", $"'{Cbo02Month.Text}'");
+                }
+                if (Chk03Day.Checked)
+                {
+                    queryData.Add("Day", $"{NbrDay.Value}");
+                }
+                if (Chk13station.Checked)
+                {
+                    queryData.Add("station", $"'{Cbo13Station.Text}'");
+                }
 
                 DisplayData(queryData, limit, totalRequested);
             }
@@ -230,6 +274,7 @@ namespace GsoFdDemo
                 // Insert ListObject.
                 Excel.Range range = (Excel.Range)ws.Range["A2"];
                 Excel.ListObject listObject = (Excel.ListObject)ws.ListObjects.AddEx(XlListObjectHasHeaders: Excel.XlYesNoGuess.xlYes, Destination: range);
+                listObject.Name = "Table1";
 
                 // Insert total/displayed records count.
                 ws.Range["A1"].Formula = "= COUNTA(Table1[IncidentNumber]) & \" records / \" & SUBTOTAL(103, Table1[IncidentNumber]) & \" shown\"";
@@ -257,5 +302,28 @@ namespace GsoFdDemo
             TxtLimitRecords.Clear();
         }
 
+
+
+        private void BtnSelectAllFields_Click(object sender, EventArgs e)
+        {
+            foreach (CheckBox ctrl in PnlFields.Controls.OfType<CheckBox>())
+            {
+                if (ctrl.GetType() ==  typeof(CheckBox))
+                {
+                    ctrl.Checked = true;
+                }
+            }
+        }
+
+        private void BtnSelectNoFields_Click(object sender, EventArgs e)
+        {
+            foreach (CheckBox ctrl in PnlFields.Controls.OfType<CheckBox>())
+            {
+                if (ctrl.GetType() == typeof(CheckBox))
+                {
+                    ctrl.Checked = false;
+                }
+            }
+        }
     }
 }
