@@ -42,7 +42,20 @@ namespace GsoFdDemo
             dt = new DataTable();
 
             Dictionary<string, string> queryData = new Dictionary<string, string>();
-            DisplayData(queryData, 0);
+            DisplayData(queryData, true, 0);
+        }
+
+
+        /// <summary>
+        /// Retrieve sample dataset, display in DataGridView.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnLoadSampleData_Click(object sender, EventArgs e)
+        {
+            Dictionary<string, string> queryData = new Dictionary<string, string>();
+            int totalRequested = (int)NbrTotalRequested.Value;
+            DisplayData(queryData, true, totalRequested);
         }
 
 
@@ -53,17 +66,48 @@ namespace GsoFdDemo
         /// <param name="e"></param>
         private void btnLoadGsoFdData_Click(object sender, EventArgs e)
         {
-            Dictionary<string, string> queryData = new Dictionary<string, string>()
-            {
-                ["Year"] = "'2022'",
-                ["Month"] = "'01'",
-                ["Day"] = "01",
-                ["station"] = "'07'"
-            };
+            bool limit = ChkLimitRecords.Checked;
+            int totalRequested;
+            bool success = Int32.TryParse(TxtLimitRecords.Text, out totalRequested);
 
-            //Dictionary<string, string> queryData = new Dictionary<string, string>();
-            int totalRequested = (int)NbrTotalRequested.Value;
-            DisplayData(queryData,totalRequested);
+            if (ChkLimitRecords.Checked)
+            {
+                if (success)
+                {
+                    if (totalRequested > 0)
+                    {
+                        Dictionary<string, string> queryData = new Dictionary<string, string>()
+                        {
+                            ["Year"] = "'2022'",
+                            ["Month"] = "'01'",
+                            ["Day"] = "01",
+                            ["station"] = "'07'"
+                        };
+
+                        DisplayData(queryData, limit, totalRequested);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Maximum records requested must be a whole number, greater than zero.");
+                    }
+                }
+                else
+                {
+                    MessageBox.Show("Maximum records requested must be a whole number.");
+                }
+            }
+            else
+            {
+                Dictionary<string, string> queryData = new Dictionary<string, string>()
+                {
+                    ["Year"] = "'2022'",
+                    ["Month"] = "'01'",
+                    ["Day"] = "01",
+                    ["station"] = "'07'"
+                };
+
+                DisplayData(queryData, limit, totalRequested);
+            }
         }
 
 
@@ -72,10 +116,10 @@ namespace GsoFdDemo
         /// </summary>
         /// <param name="queryData">Query parameters</param>
         /// <param name="totalRequested">Maximum records to sample</param>
-        private async void DisplayData(Dictionary<string,string> queryData, int totalRequested)
+        private async void DisplayData(Dictionary<string,string> queryData, bool limit, int totalRequested)
         {
             // Retrieve data from API.
-            GsoFdRootobject gsoFdRootobject = await GetGsoFdDataAsync(queryData, totalRequested);
+            GsoFdRootobject gsoFdRootobject = await GetGsoFdDataAsync(queryData, limit, totalRequested);
 
             // Load datatable.
             dt = ToDataTable(gsoFdRootobject.features);
@@ -89,9 +133,9 @@ namespace GsoFdDemo
         /// Retrieve data from API.
         /// </summary>
         /// <returns></returns>
-        private async Task<GsoFdRootobject> GetGsoFdDataAsync(Dictionary<string,string> queryData, int totalRequested)
+        private async Task<GsoFdRootobject> GetGsoFdDataAsync(Dictionary<string,string> queryData, bool limit, int totalRequested)
         {
-            String GsoFdRootobjectData = await Task.Run(() => GsoFdProcessor.LoadGsoFdData(queryData, totalRequested));
+            String GsoFdRootobjectData = await Task.Run(() => GsoFdProcessor.LoadGsoFdData(queryData, limit, totalRequested));
 
             GsoFdRootobject gsoFdRootobject = JsonConvert.DeserializeObject<GsoFdRootobject>(GsoFdRootobjectData, new JsonSerializerSettings { NullValueHandling = NullValueHandling.Ignore });
 
@@ -212,5 +256,6 @@ namespace GsoFdDemo
 
             TxtLimitRecords.Clear();
         }
+
     }
 }

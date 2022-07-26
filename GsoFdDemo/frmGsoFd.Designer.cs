@@ -113,6 +113,7 @@
             this.BtnLoadSampleData.TabIndex = 6;
             this.BtnLoadSampleData.Text = "Sample the data";
             this.BtnLoadSampleData.UseVisualStyleBackColor = true;
+            this.BtnLoadSampleData.Click += new System.EventHandler(this.BtnLoadSampleData_Click);
             // 
             // ChkLimitRecords
             // 
