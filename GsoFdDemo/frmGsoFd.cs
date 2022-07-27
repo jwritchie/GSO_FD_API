@@ -34,6 +34,28 @@ namespace GsoFdDemo
             LblLimitRecords.Enabled = false;
             TxtLimitRecords.Enabled = false;
 
+            // Display all fields.
+            SelectAllFields();
+
+            // Clear all filters.
+            ResetFilters();
+
+            // Populate 'DayOfWeek' combobox.
+            Cbo04DayOfWeek.Items.AddRange(new object[] {
+                "Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"
+            });
+
+            // Populate 'Week' combobox.
+            Cbo05Week.Items.AddRange(new object[] {
+                "1","2","3","4","5","6","7","8","9","10",
+                "11","12","13","14","15","16","17","18","19","20",
+                "21","22","23","24","25","26","27","28","29","30",
+                "31","32","33","34","35","36","37","38","39","40",
+                "41","42","43","44","45","46","47","48","49","50",
+                "51","52","53"
+            });
+
+            // Populate 'station' combobox.
             Cbo13Station.Items.AddRange(new object[] {
                 "01","02","03","04","05","06","07","08","09","10",
                 "11","12","13","14","15","16","17","18","19","20",
@@ -56,17 +78,17 @@ namespace GsoFdDemo
         }
 
 
-        /// <summary>
-        /// Retrieve sample dataset, display in DataGridView.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void BtnLoadSampleData_Click(object sender, EventArgs e)
-        {
-            Dictionary<string, string> queryData = new Dictionary<string, string>();
-            int totalRequested = (int)NbrTotalRequested.Value;
-            DisplayData(queryData, true, totalRequested);
-        }
+        ///// <summary>
+        ///// Retrieve sample dataset, display in DataGridView.
+        ///// </summary>
+        ///// <param name="sender"></param>
+        ///// <param name="e"></param>
+        //private void BtnLoadSampleData_Click(object sender, EventArgs e)
+        //{
+        //    Dictionary<string, string> queryData = new Dictionary<string, string>();
+        //    int totalRequested = (int)NbrTotalRequested.Value;
+        //    DisplayData(queryData, true, totalRequested);
+        //}
 
 
         /// <summary>
@@ -76,9 +98,11 @@ namespace GsoFdDemo
         /// <param name="e"></param>
         private void btnLoadGsoFdData_Click(object sender, EventArgs e)
         {
+            // Attempt parsing maximum # of records requested to Int32.
             bool limit = ChkLimitRecords.Checked;
             int totalRequested;
             bool success = Int32.TryParse(TxtLimitRecords.Text, out totalRequested);
+
 
             if (ChkLimitRecords.Checked)
             {
@@ -86,31 +110,7 @@ namespace GsoFdDemo
                 {
                     if (totalRequested > 0)
                     {
-                        Dictionary<string, string> queryData = new Dictionary<string, string>();
-                        //{
-                        //    ["Year"] = "'2022'",
-                        //    ["Month"] = "'01'",
-                        //    ["Day"] = "01",
-                        //    ["station"] = "'07'"
-                        //};
-
-                        if (Chk06Year.Checked)
-                        {
-                            queryData.Add("Year", $"'{Cbo06Year.Text}'");
-                        }
-                        if (Chk02Month.Checked)
-                        {
-                            queryData.Add("Month", $"'{Cbo02Month.Text}'");
-                        }
-                        if (Chk03Day.Checked)
-                        {
-                            queryData.Add("Day", $"{NbrDay.Value}");
-                        }
-                        if (Chk13station.Checked)
-                        {
-                            queryData.Add("station", $"'{Cbo13Station.Text}'");
-                        }
-
+                        Dictionary<string, string> queryData = BuildQuery();
                         DisplayData(queryData, limit, totalRequested);
                     }
                     else
@@ -125,33 +125,44 @@ namespace GsoFdDemo
             }
             else
             {
-                Dictionary<string, string> queryData = new Dictionary<string, string>();
-                //{
-                //    ["Year"] = "'2022'",
-                //    ["Month"] = "'01'",
-                //    ["Day"] = "01",
-                //    ["station"] = "'07'"
-                //};
-
-                if (Chk06Year.Checked)
-                {
-                    queryData.Add("Year", $"'{Cbo06Year.Text}'");
-                }
-                if (Chk02Month.Checked)
-                {
-                    queryData.Add("Month", $"'{Cbo02Month.Text}'");
-                }
-                if (Chk03Day.Checked)
-                {
-                    queryData.Add("Day", $"{NbrDay.Value}");
-                }
-                if (Chk13station.Checked)
-                {
-                    queryData.Add("station", $"'{Cbo13Station.Text}'");
-                }
-
+                Dictionary<string, string> queryData = BuildQuery();
                 DisplayData(queryData, limit, totalRequested);
             }
+        }
+
+
+        /// <summary>
+        /// Build query array.
+        /// </summary>
+        private Dictionary<string, string> BuildQuery()
+        {
+            Dictionary<string, string> queryData = new Dictionary<string, string>();
+            //{
+            //    ["Year"] = "'2022'",
+            //    ["Month"] = "'01'",
+            //    ["Day"] = "01",
+            //    ["station"] = "'07'"
+            //};
+
+            // Build query/queries...
+            if (Chk06Year.Checked)
+            {
+                queryData.Add("Year", $"'{Cbo06Year.Text}'");
+            }
+            if (Chk02Month.Checked)
+            {
+                queryData.Add("Month", $"'{Cbo02Month.Text}'");
+            }
+            if (Chk03Day.Checked)
+            {
+                queryData.Add("Day", $"{NbrDay.Value}");
+            }
+            if (Chk13station.Checked)
+            {
+                queryData.Add("station", $"'{Cbo13Station.Text}'");
+            }
+
+            return queryData;
         }
 
 
@@ -159,7 +170,8 @@ namespace GsoFdDemo
         /// Display retrieved data in DataGridView.
         /// </summary>
         /// <param name="queryData">Query parameters</param>
-        /// <param name="totalRequested">Maximum records to sample</param>
+        /// /// <param name="limit">Whether Maximum # of records is set</param>
+        /// <param name="totalRequested">Maximum records to retrieve</param>
         private async void DisplayData(Dictionary<string,string> queryData, bool limit, int totalRequested)
         {
             // Retrieve data from API.
@@ -170,6 +182,8 @@ namespace GsoFdDemo
 
             // Bind bsDgvGsoFd to datatable to display data.
             btnLoadGsoFdData.Invoke((MethodInvoker)(() => bsDgvGsoFd.DataSource = dt));
+
+            LblRecordsRetrieved.Invoke((MethodInvoker)(() => LblRecordsRetrieved.Text = $"{dt.Rows.Count}  Records retrieved"));
         }
 
 
@@ -271,6 +285,8 @@ namespace GsoFdDemo
                     currentRow++;
                 }
 
+                // TODO:  Check for existing ListObject...
+
                 // Insert ListObject.
                 Excel.Range range = (Excel.Range)ws.Range["A2"];
                 Excel.ListObject listObject = (Excel.ListObject)ws.ListObjects.AddEx(XlListObjectHasHeaders: Excel.XlYesNoGuess.xlYes, Destination: range);
@@ -286,6 +302,12 @@ namespace GsoFdDemo
 
         }
 
+
+        /// <summary>
+        /// Enable/Disable maximum # of records to retrieve.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void ChkLimitRecords_CheckedChanged(object sender, EventArgs e)
         {
             if (ChkLimitRecords.Checked)
@@ -303,27 +325,144 @@ namespace GsoFdDemo
         }
 
 
-
+        /// <summary>
+        /// Select ALL fields to retrieve/display.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSelectAllFields_Click(object sender, EventArgs e)
+        {
+            SelectAllFields();
+        }
+
+        /// <summary>
+        /// Select ALL fields to retrieve/display.
+        /// </summary>
+        private void SelectAllFields()
         {
             foreach (CheckBox ctrl in PnlFields.Controls.OfType<CheckBox>())
             {
-                if (ctrl.GetType() ==  typeof(CheckBox))
+                if (ctrl.GetType() == typeof(CheckBox) && (string)ctrl.Tag == null)
                 {
                     ctrl.Checked = true;
                 }
             }
         }
 
+        /// <summary>
+        /// Deselect all fields to retrieve/display.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void BtnSelectNoFields_Click(object sender, EventArgs e)
         {
             foreach (CheckBox ctrl in PnlFields.Controls.OfType<CheckBox>())
             {
-                if (ctrl.GetType() == typeof(CheckBox))
+                if (ctrl.GetType() == typeof(CheckBox) && (string)ctrl.Tag == null)
                 {
                     ctrl.Checked = false;
                 }
             }
+        }
+
+        private void BtnResetFilters_Click(object sender, EventArgs e)
+        {
+            ResetFilters();
+        }
+
+        private void ResetFilters()
+        {
+            foreach (CheckBox ctrl in PnlFields.Controls.OfType<CheckBox>())
+            {
+                if (ctrl.GetType() == typeof(CheckBox) && (string)ctrl.Tag != null)
+                {
+                    ctrl.Checked = false;
+                }
+            }
+        }
+
+        private void Chk02Month_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Chk02Month.Checked == true) 
+            {
+                Cbo02Month.Enabled = true;
+            }
+            else
+            {
+                Cbo02Month.Enabled = false;
+            }
+
+            Cbo02Month.SelectedIndex = -1;
+        }
+
+        private void Chk03Day_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Chk03Day.Checked == true)
+            {
+                NbrDay.Enabled = true;
+            }
+            else
+            {
+                NbrDay.Enabled = false;
+            }
+
+            NbrDay.Value = 1;
+        }
+
+        private void Chk04DayOfWeek_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Chk04DayOfWeek.Checked == true)
+            {
+                Cbo04DayOfWeek.Enabled = true;
+            }
+            else
+            {
+                Cbo04DayOfWeek.Enabled = false;
+            }
+
+            Cbo04DayOfWeek.SelectedIndex = -1;
+        }
+
+        private void Chk05Week_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Chk05Week.Checked == true)
+            {
+                Cbo05Week.Enabled = true;
+            }
+            else
+            {
+                Cbo05Week.Enabled = false;
+            }
+
+            Cbo05Week.SelectedIndex = -1;
+        }
+
+        private void Chk06Year_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Chk06Year.Checked == true)
+            {
+                Cbo06Year.Enabled = true;
+            }
+            else
+            {
+                Cbo06Year.Enabled = false;
+            }
+
+            Cbo06Year.SelectedIndex = -1;
+        }
+
+        private void Chk13station_CheckedChanged(object sender, EventArgs e)
+        {
+            if (Chk13station.Checked == true)
+            {
+                Cbo13Station.Enabled = true;
+            }
+            else
+            {
+                Cbo13Station.Enabled = false;
+            }
+
+            Cbo13Station.SelectedIndex = -1;
         }
     }
 }
