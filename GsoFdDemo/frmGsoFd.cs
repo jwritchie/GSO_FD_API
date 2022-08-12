@@ -55,6 +55,14 @@ namespace GsoFdDemo
                 "51","52","53"
             });
 
+            // Populate 'Year' combobox, from 2010 to present year.
+            int year = 2010;
+            while (year < DateTime.Now.Year + 1)
+            {
+                Cbo06Year.Items.Add(year.ToString());
+                year++;
+            }
+
             // Populate 'station' combobox.
             Cbo13Station.Items.AddRange(new object[] {
                 "01","02","03","04","05","06","07","08","09","10",
@@ -76,19 +84,6 @@ namespace GsoFdDemo
             Dictionary<string, string> queryData = new Dictionary<string, string>();
             DisplayData(queryData, true, 0);
         }
-
-
-        ///// <summary>
-        ///// Retrieve sample dataset, display in DataGridView.
-        ///// </summary>
-        ///// <param name="sender"></param>
-        ///// <param name="e"></param>
-        //private void BtnLoadSampleData_Click(object sender, EventArgs e)
-        //{
-        //    Dictionary<string, string> queryData = new Dictionary<string, string>();
-        //    int totalRequested = (int)NbrTotalRequested.Value;
-        //    DisplayData(queryData, true, totalRequested);
-        //}
 
 
         /// <summary>
@@ -145,10 +140,6 @@ namespace GsoFdDemo
             //};
 
             // Build query/queries...
-            if (Chk06Year.Checked)
-            {
-                queryData.Add("Year", $"'{Cbo06Year.Text}'");
-            }
             if (Chk02Month.Checked)
             {
                 queryData.Add("Month", $"'{Cbo02Month.Text}'");
@@ -156,6 +147,18 @@ namespace GsoFdDemo
             if (Chk03Day.Checked)
             {
                 queryData.Add("Day", $"{NbrDay.Value}");
+            }
+            if (Chk04DayOfWeek.Checked)
+            {
+                queryData.Add("DayOfWeek", $"'{Cbo04DayOfWeek.Text}'");
+            }
+            if (Chk05Week.Checked)
+            {
+                queryData.Add("Week", $"'{int.Parse(Cbo05Week.Text)}'");
+            }
+            if (Chk06Year.Checked)
+            {
+                queryData.Add("Year", $"'{Cbo06Year.Text}'");
             }
             if (Chk13station.Checked)
             {
@@ -463,6 +466,11 @@ namespace GsoFdDemo
             }
 
             Cbo13Station.SelectedIndex = -1;
+        }
+
+        private void frmGsoFd_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Globals.Ribbons.GsoFdRibbon.GsoFdRbnBtnDisplayForm.Enabled = true;
         }
     }
 }

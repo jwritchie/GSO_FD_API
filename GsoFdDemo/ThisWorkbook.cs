@@ -10,6 +10,10 @@ namespace GsoFdDemo
 {
     public partial class ThisWorkbook
     {
+
+        internal frmGsoFd frm;
+
+
         /// <summary>
         /// Display frmGsoFd on Startup.
         /// </summary>
@@ -17,8 +21,8 @@ namespace GsoFdDemo
         /// <param name="e"></param>
         private void ThisWorkbook_Startup(object sender, System.EventArgs e)
         {
-            frmGsoFd frm = new frmGsoFd();
-            frm.Show();
+            //frmGsoFd frm = new frmGsoFd();
+            //frm.Show();
         }
 
         private void ThisWorkbook_Shutdown(object sender, System.EventArgs e)
